@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rules · Amplified SMP</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #03020a; --accent: #7c3aed; --accent2: #a78bfa;
+      --gold: #fbbf24; --text: #e2e8f0; --muted: #94a3b8;
+    }
+    html, body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; overflow-x: hidden; }
+
+```
+canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+.nebula {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 30%, rgba(76,29,149,0.25) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 50% at 80% 70%, rgba(30,10,80,0.3) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 2rem;
+  background: rgba(3,2,10,0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.nav-logo {
+  font-family: 'Cinzel Decorative', serif; font-size: 1.1rem;
+  background: linear-gradient(135deg, #fff, var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  text-decoration: none;
+}
+.nav-links { display: flex; gap: 1.5rem; }
+.nav-links a {
+  color: var(--muted); text-decoration: none; font-size: 0.9rem;
+  font-weight: 600; letter-spacing: 0.05em; transition: color 0.2s;
+}
+.nav-links a:hover, .nav-links a.active { color: var(--accent2); }
+
+/* PAGE */
+.page { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 7rem 2rem 5rem; }
+
+.page-badge {
+  font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--accent2); font-weight: 600; margin-bottom: 0.5rem;
+}
+.page-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(2rem, 6vw, 4rem); font-weight: 900;
+  background: linear-gradient(135deg, #fff, var(--accent2), var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 0.5rem;
+}
+.page-sub { color: var(--muted); font-size: 1rem; margin-bottom: 3rem; line-height: 1.6; }
+
+/* RULE SECTIONS */
+.rule-section { margin-bottom: 2.5rem; }
+
+.rule-section-header {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(167,139,250,0.15);
+}
+.rule-section-icon { font-size: 1.4rem; }
+.rule-section-title {
+  font-family: 'Cinzel Decorative', serif; font-size: 1rem; font-weight: 700;
+  color: var(--accent2);
+}
+
+.rule-list { display: flex; flex-direction: column; gap: 0.6rem; }
+
+.rule-item {
+  display: flex; gap: 0.75rem; align-items: flex-start;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  transition: border-color 0.2s, background 0.2s;
+}
+.rule-item:hover {
+  border-color: rgba(167,139,250,0.2);
+  background: rgba(124,58,237,0.05);
+}
+.rule-number {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
+  color: var(--accent); min-width: 1.8rem; padding-top: 0.15rem;
+}
+.rule-text { font-size: 0.95rem; color: var(--text); line-height: 1.6; }
+.rule-text strong { color: var(--accent2); }
+
+.rule-note {
+  font-size: 0.8rem; color: var(--muted); margin-top: 0.3rem;
+  padding: 0.4rem 0.75rem;
+  border-left: 2px solid rgba(124,58,237,0.4);
+  background: rgba(124,58,237,0.05);
+  border-radius: 0 0.3rem 0.3rem 0;
+}
+
+/* PUNISHMENT TABLE */
+.punishment-section {
+  margin-top: 3rem;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(167,139,250,0.15);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+.punishment-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(167,139,250,0.15);
+  display: flex; align-items: center; gap: 0.75rem;
+}
+.punishment-header h3 {
+  font-family: 'Cinzel Decorative', serif; font-size: 1rem; color: var(--gold);
+}
+table { width: 100%; border-collapse: collapse; }
+th {
+  background: rgba(124,58,237,0.1);
+  padding: 0.75rem 1rem; text-align: left;
+  font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent2); font-weight: 600;
+}
+td {
+  padding: 0.75rem 1rem; font-size: 0.9rem; color: var(--text);
+  border-top: 1px solid rgba(255,255,255,0.04);
+  line-height: 1.5;
+}
+tr:hover td { background: rgba(124,58,237,0.04); }
+.sev-low    { color: #4ade80; font-weight: 600; }
+.sev-med    { color: #fbbf24; font-weight: 600; }
+.sev-high   { color: #f87171; font-weight: 600; }
+.sev-perm   { color: #ef4444; font-weight: 700; }
+
+footer {
+  text-align: center; font-size: 0.8rem; color: rgba(148,163,184,0.4);
+  padding: 2rem; border-top: 1px solid rgba(255,255,255,0.04);
+  position: relative; z-index: 1; letter-spacing: 0.1em;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page { animation: fadeUp 0.6s ease both; }
+```
+
+  </style>
+</head>
+<body>
+<div class="nebula"></div>
+<canvas id="starfield"></canvas>
+
+<nav>
+  <a href="index.html" class="nav-logo">Amplified</a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="rules.html" class="active">Rules</a>
+    <a href="staff.html">Staff</a>
+  </div>
+</nav>
+
+<div class="page">
+  <p class="page-badge">Server Guidelines</p>
+  <h1 class="page-title">Rules</h1>
+  <p class="page-sub">Read carefully before joining. Ignorance of the rules is not an excuse. When in doubt, ask staff first.</p>
+
+  <!-- GENERAL -->
+
+  <div class="rule-section">
+    <div class="rule-section-header">
+      <span class="rule-section-icon">✅</span>
+      <span class="rule-section-title">General Rules</span>
+    </div>
+    <div class="rule-list">
+      <div class="rule-item"><span class="rule-number">G1</span><span class="rule-text">Be respectful and kind to other players out of character (OOC). No toxicity, targeted insults, excessive sarcasm meant to hurt feelings, or public arguments.</span></div>
+      <div class="rule-item"><span class="rule-number">G2</span><span class="rule-text">No harassment, hate speech, discrimination, or real-life threats of any kind.</span></div>
+      <div class="rule-item"><span class="rule-number">G3</span><span class="rule-text">Keep all content <strong>PG-13</strong>. No excessive swearing, sexual topics, extreme gore outside scripted scenes, or offensive builds/skins/names.</span></div>
+      <div class="rule-item"><span class="rule-number">G4</span><span class="rule-text">Staff decisions about story, scenes, and rule enforcement are final. No arguing in public — appeal privately if needed.</span></div>
+      <div class="rule-item"><span class="rule-number">G5</span><span class="rule-text">When in doubt, ask staff first.</span></div>
+    </div>
+  </div>
+
+  <!-- IN-GAME -->
+
+  <div class="rule-section">
+    <div class="rule-section-header">
+      <span class="rule-section-icon">🎮</span>
+      <span class="rule-section-title">In-Game (Scripted) Rules</span>
+    </div>
+    <div class="rule-list">
+      <div class="rule-item"><span class="rule-number">IG1</span><span class="rule-text">This is a <strong>scripted SMP</strong>. Some fights, deaths, events, builds, and items are pre-planned by staff/directors.</span></div>
+      <div class="rule-item"><span class="rule-number">IG2</span><span class="rule-text"><strong>Do not interfere with active scenes.</strong> Stay at least 100 blocks away unless explicitly part of the scene. Do not build, mine, make noise, or cause mobs/entities to enter the area. If you accidentally enter, leave immediately.</span></div>
+      <div class="rule-item"><span class="rule-number">IG3</span><span class="rule-text">Only use mods, texture packs, or clients <strong>explicitly approved by staff</strong>. Using anything else = immediate ban.</span></div>
+      <div class="rule-item"><span class="rule-number">IG4</span><span class="rule-text">Duped or exploited items are only allowed if staff gave them for a specific plot point. Using them otherwise = removal + punishment.</span></div>
+      <div class="rule-item"><span class="rule-number">IG5</span><span class="rule-text"><strong>No griefing, stealing, PvP, or destruction</strong> outside of staff-approved scripted events. This includes breaking blocks, taking items from chests/shulkers, killing players or pets, or blowing things up — even if it looks "minor" or "unclaimed."</span></div>
+      <div class="rule-item"><span class="rule-number">IG6</span><span class="rule-text">Staged betrayals or deaths only happen when the director tells you to.</span></div>
+      <div class="rule-item"><span class="rule-number">IG7</span><span class="rule-text">Staff can reset, rewind, rollback, or remove anything (builds, items, deaths) that breaks the story. <strong>Story comes first.</strong></span></div>
+      <div class="rule-item"><span class="rule-number">IG8</span><span class="rule-text">No spamming in chat, voice, or with commands/actions.</span></div>
+    </div>
+  </div>
+
+  <!-- STORY -->
+
+  <div class="rule-section">
+    <div class="rule-section-header">
+      <span class="rule-section-icon">🎥</span>
+      <span class="rule-section-title">Story & Content Rules</span>
+    </div>
+    <div class="rule-list">
+      <div class="rule-item"><span class="rule-number">S1</span><span class="rule-text">Follow your assigned role (ally, villain, neutral, mystery, etc.) to the best of your ability. Major deviations need staff approval.</span></div>
+      <div class="rule-item"><span class="rule-number">S2</span><span class="rule-text"><strong>Do not leak</strong> future plot points, scripts, or behind-the-scenes info — in-game or on Discord.</span></div>
+      <div class="rule-item"><span class="rule-number">S3</span><span class="rule-text">Deaths, item losses, betrayals, and stashes can be staged/faked for the story — don't assume everything is real.</span></div>
+      <div class="rule-item"><span class="rule-number">S4</span><span class="rule-text">Cooperate with reshoot or "camera" requests so creators can get good footage.</span></div>
+      <div class="rule-item"><span class="rule-number">S5</span><span class="rule-text"><strong>Story > Chaos.</strong> Fun chaotic moments are allowed only if they don't ruin planned story beats or other players' scenes.</span></div>
+    </div>
+  </div>
+
+  <!-- DISCORD -->
+
+  <div class="rule-section">
+    <div class="rule-section-header">
+      <span class="rule-section-icon">💬</span>
+      <span class="rule-section-title">Discord Rules</span>
+    </div>
+    <div class="rule-list">
+      <div class="rule-item"><span class="rule-number">D1</span><span class="rule-text">Keep In-Character (IC) and Out-of-Character (OOC) chat in the correct channels. No IC talk in OOC channels and vice versa.</span></div>
+      <div class="rule-item"><span class="rule-number">D2</span><span class="rule-text">No NSFW content, memes, images, or discussions anywhere.</span></div>
+      <div class="rule-item"><span class="rule-number">D3</span><span class="rule-text">No doxxing, sharing personal information, or real-life drama.</span></div>
+      <div class="rule-item"><span class="rule-number">D4</span><span class="rule-text">No spamming messages, emojis, caps, or repeatedly pinging staff/members.</span></div>
+      <div class="rule-item"><span class="rule-number">D5</span><span class="rule-text">Do not ask to be unmuted or unbanned in DMs or public channels — use the proper appeal process.</span></div>
+      <div class="rule-item"><span class="rule-number">D6</span><span class="rule-text">Speak <strong>English only</strong> in all public channels (voice and text).</span></div>
+      <div class="rule-item"><span class="rule-number">D7</span><span class="rule-text">Be respectful — no backseat directing, arguing about staff decisions, or toxicity.</span></div>
+    </div>
+  </div>
+
+  <!-- PERFORMANCE -->
+
+  <div class="rule-section">
+    <div class="rule-section-header">
+      <span class="rule-section-icon">⚡</span>
+      <span class="rule-section-title">Performance Rules</span>
+    </div>
+    <div class="rule-list">
+      <div class="rule-item"><span class="rule-number">P1</span><span class="rule-text">No lag machines or excessive redstone contraptions (flying machines, large item sorters, rapid clocks, or huge auto-farms). Keep farms small and efficient.</span></div>
+      <div class="rule-item"><span class="rule-number">P2</span><span class="rule-text">No more than <strong>30 of any single mob type</strong> in one area. Staff may cull excess mobs without warning.</span></div>
+      <div class="rule-item"><span class="rule-number">P3</span><span class="rule-text">No chunk loaders, permanent portals, or anything that keeps many chunks loaded 24/7.</span></div>
+      <div class="rule-item"><span class="rule-number">P4</span><span class="rule-text">Avoid massive structures with thousands of blocks (especially lighting, leaves, or water) in one area.</span></div>
+      <div class="rule-item"><span class="rule-number">P5</span><span class="rule-text">If the server lags or crashes because of your build/farm, staff will ask you to simplify or remove it. Repeated issues = temporary removal of the build.</span></div>
+      <div class="rule-item"><span class="rule-number">P6</span><span class="rule-text">Report major lag sources to staff immediately instead of exploiting them.</span></div>
+    </div>
+  </div>
+
+  <!-- PUNISHMENT TABLE -->
+
+  <div class="punishment-section">
+    <div class="punishment-header">
+      <span style="font-size:1.2rem">⚖️</span>
+      <h3>Punishment Guidelines</h3>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Offense</th>
+          <th>First Offence</th>
+          <th>Repeat</th>
+          <th>Severity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Minor disrespect / sarcasm</td><td>Verbal warning</td><td>1hr timeout</td><td class="sev-low">Low</td></tr>
+        <tr><td>Spamming (chat/Discord)</td><td>1hr timeout</td><td>24hr mute</td><td class="sev-low">Low</td></tr>
+        <tr><td>Wrong IC/OOC channel</td><td>Warning</td><td>1hr timeout</td><td class="sev-low">Low</td></tr>
+        <tr><td>Minor scene interference</td><td>Warning + teleport out</td><td>24hr ban</td><td class="sev-med">Medium</td></tr>
+        <tr><td>Arguing with staff publicly</td><td>1hr timeout</td><td>3 day ban</td><td class="sev-med">Medium</td></tr>
+        <tr><td>Lag machine / excessive redstone</td><td>Build removed + warning</td><td>3 day ban</td><td class="sev-med">Medium</td></tr>
+        <tr><td>Unapproved mods/clients</td><td>7 day ban</td><td>Permanent ban</td><td class="sev-high">High</td></tr>
+        <tr><td>Griefing / stealing / PvP outside script</td><td>7 day ban + rollback</td><td>Permanent ban</td><td class="sev-high">High</td></tr>
+        <tr><td>Leaking plot points / scripts</td><td>7 day ban</td><td>Permanent ban</td><td class="sev-high">High</td></tr>
+        <tr><td>Duping / exploiting items</td><td>Items removed + 7 day ban</td><td>Permanent ban</td><td class="sev-high">High</td></tr>
+        <tr><td>Harassment / hate speech / threats</td><td>Permanent ban</td><td>—</td><td class="sev-perm">Permanent</td></tr>
+        <tr><td>Doxxing / sharing personal info</td><td>Permanent ban</td><td>—</td><td class="sev-perm">Permanent</td></tr>
+        <tr><td>NSFW content</td><td>Permanent ban</td><td>—</td><td class="sev-perm">Permanent</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<footer>© 2026 Amplified SMP · amplifiedsmp.org · Rules subject to change — staff will announce updates</footer>
+
+<script>
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let W, H, stars = [];
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  window.addEventListener('resize', () => { resize(); initStars(); });
+  resize();
+  function rand(a,b){ return Math.random()*(b-a)+a; }
+  function createStar() {
+    const speed = rand(0.8,2.5), size = rand(0.5,1.5), trail = rand(4,12);
+    return { x:rand(0,W), y:rand(0,H), vx:Math.cos(rand(0,Math.PI*2))*speed, vy:rand(0.5,2), size, trail, alpha:rand(0.4,1), hue:rand(200,280) };
+  }
+  function initStars() { stars = Array.from({length:50}, createStar); }
+  initStars();
+  function tick() {
+    ctx.clearRect(0,0,W,H);
+    for(let s of stars){
+      s.x+=s.vx; s.y+=s.vy;
+      if(s.y>H+50||s.x>W+50||s.x<-50){ Object.assign(s,createStar()); s.y=-10; }
+      const g=ctx.createLinearGradient(s.x-s.vx*s.trail,s.y-s.vy*s.trail,s.x,s.y);
+      g.addColorStop(0,`hsla(${s.hue},80%,90%,0)`);
+      g.addColorStop(1,`hsla(${s.hue},80%,95%,${s.alpha})`);
+      ctx.save(); ctx.strokeStyle=g; ctx.lineWidth=s.size; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(s.x-s.vx*s.trail,s.y-s.vy*s.trail); ctx.lineTo(s.x,s.y); ctx.stroke();
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.size*1.2,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${s.hue},90%,98%,${s.alpha})`; ctx.fill(); ctx.restore();
+    }
+    requestAnimationFrame(tick);
+  }
+  tick();
+</script>
+
+</body>
+</html>
