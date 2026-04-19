@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Staff · Amplified SMP</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #03020a; --accent: #7c3aed; --accent2: #a78bfa;
+      --gold: #fbbf24; --text: #e2e8f0; --muted: #94a3b8;
+    }
+    html, body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; overflow-x: hidden; min-height: 100vh; }
+    canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    .nebula {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 30%, rgba(76,29,149,0.25) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 50% at 80% 70%, rgba(30,10,80,0.3) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+```
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 2rem;
+  background: rgba(3,2,10,0.8); backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.nav-logo {
+  font-family: 'Cinzel Decorative', serif; font-size: 1.1rem;
+  background: linear-gradient(135deg, #fff, var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  text-decoration: none;
+}
+.nav-links { display: flex; gap: 1.5rem; }
+.nav-links a { color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.05em; transition: color 0.2s; }
+.nav-links a:hover, .nav-links a.active { color: var(--accent2); }
+
+/* LOGIN SCREEN */
+#login-screen {
+  position: relative; z-index: 1;
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 2rem;
+}
+.login-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(167,139,250,0.2);
+  border-radius: 1.25rem;
+  padding: 2.5rem;
+  width: 100%; max-width: 380px;
+  display: flex; flex-direction: column; align-items: center; gap: 1.5rem;
+  animation: fadeUp 0.6s ease both;
+  box-shadow: 0 0 60px rgba(124,58,237,0.1);
+}
+.login-icon { font-size: 2.5rem; }
+.login-title {
+  font-family: 'Cinzel Decorative', serif; font-size: 1.4rem; font-weight: 700;
+  background: linear-gradient(135deg, #fff, var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  text-align: center;
+}
+.login-sub { color: var(--muted); font-size: 0.9rem; text-align: center; line-height: 1.5; }
+.login-input-wrap { width: 100%; position: relative; }
+.login-input {
+  width: 100%; padding: 0.85rem 1rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 0.5rem;
+  color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 1rem;
+  letter-spacing: 0.1em; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.login-input:focus {
+  border-color: rgba(167,139,250,0.5);
+  box-shadow: 0 0 20px rgba(124,58,237,0.15);
+}
+.login-btn {
+  width: 100%; padding: 0.85rem;
+  background: linear-gradient(135deg, var(--accent), #5b21b6);
+  color: #fff; border: none; border-radius: 0.5rem;
+  font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 700;
+  letter-spacing: 0.08em; cursor: pointer;
+  box-shadow: 0 0 20px rgba(124,58,237,0.35);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.login-btn:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(124,58,237,0.55); }
+.login-error {
+  color: #f87171; font-size: 0.85rem; font-weight: 600;
+  letter-spacing: 0.05em; display: none;
+}
+.login-error.show { display: block; }
+
+/* STAFF CONTENT */
+#staff-content { display: none; position: relative; z-index: 1; }
+
+.page { max-width: 960px; margin: 0 auto; padding: 7rem 2rem 5rem; }
+.page-badge { font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent2); font-weight: 600; margin-bottom: 0.5rem; }
+.page-title {
+  font-family: 'Cinzel Decorative', serif; font-size: clamp(2rem, 6vw, 4rem); font-weight: 900;
+  background: linear-gradient(135deg, #fff, var(--accent2), var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 0.5rem;
+}
+.page-sub { color: var(--muted); font-size: 1rem; margin-bottom: 3rem; line-height: 1.6; }
+
+.logout-btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.5rem 1rem; border-radius: 0.4rem;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  color: var(--muted); font-family: 'Rajdhani', sans-serif; font-size: 0.85rem;
+  font-weight: 600; cursor: pointer; transition: all 0.2s; margin-bottom: 2.5rem;
+}
+.logout-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+/* STAFF GRID */
+.staff-section { margin-bottom: 2.5rem; }
+.staff-section-title {
+  font-family: 'Cinzel Decorative', serif; font-size: 0.9rem; color: var(--accent2);
+  letter-spacing: 0.1em; margin-bottom: 1rem;
+  padding-bottom: 0.5rem; border-bottom: 1px solid rgba(167,139,250,0.15);
+}
+.staff-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+.staff-card {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 0.75rem; padding: 1.25rem; text-align: center;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.staff-card:hover { border-color: rgba(167,139,250,0.3); transform: translateY(-3px); }
+.staff-avatar { font-size: 2.5rem; margin-bottom: 0.5rem; }
+.staff-name { font-weight: 700; font-size: 1rem; color: var(--text); margin-bottom: 0.25rem; }
+.staff-role { font-size: 0.8rem; color: var(--accent2); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem; }
+.staff-tz { font-size: 0.75rem; color: var(--muted); }
+
+/* NOTES SECTION */
+.notes-section {
+  margin-top: 2.5rem;
+  background: rgba(255,255,255,0.02); border: 1px solid rgba(167,139,250,0.12);
+  border-radius: 1rem; padding: 1.5rem;
+}
+.notes-title { font-family: 'Cinzel Decorative', serif; font-size: 0.9rem; color: var(--gold); margin-bottom: 1rem; }
+.note-item {
+  display: flex; gap: 0.75rem; padding: 0.65rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.9rem; color: var(--text); line-height: 1.5;
+}
+.note-item:last-child { border-bottom: none; }
+.note-dot { color: var(--accent2); font-weight: 700; flex-shrink: 0; }
+
+footer { text-align: center; font-size: 0.8rem; color: rgba(148,163,184,0.4); padding: 2rem; border-top: 1px solid rgba(255,255,255,0.04); letter-spacing: 0.1em; }
+
+@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+```
+
+  </style>
+</head>
+<body>
+<div class="nebula"></div>
+<canvas id="starfield"></canvas>
+
+<nav>
+  <a href="index.html" class="nav-logo">Amplified</a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="rules.html">Rules</a>
+    <a href="staff.html" class="active">Staff</a>
+  </div>
+</nav>
+
+<!-- LOGIN -->
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-icon">🛡️</div>
+    <div class="login-title">Staff Portal</div>
+    <p class="login-sub">This page is restricted to Amplified staff only. Enter the staff password to continue.</p>
+    <div class="login-input-wrap">
+      <input class="login-input" type="password" id="pw-input" placeholder="Enter password..." onkeydown="if(event.key==='Enter')tryLogin()"/>
+    </div>
+    <p class="login-error" id="login-error">❌ Incorrect password. Try again.</p>
+    <button class="login-btn" onclick="tryLogin()">Access Staff Portal</button>
+  </div>
+</div>
+
+<!-- STAFF CONTENT -->
+
+<div id="staff-content">
+  <div class="page">
+    <p class="page-badge">Internal</p>
+    <h1 class="page-title">Staff Portal</h1>
+    <p class="page-sub">Staff roster, roles, and internal notes. Keep this information confidential.</p>
+    <button class="logout-btn" onclick="logout()">🔒 Lock Portal</button>
+
+```
+<!-- NOTES -->
+<div class="notes-section">
+  <div class="notes-title">📋 Staff Notes</div>
+  <div class="note-item"><span class="note-dot">→</span><span>Story decisions and bans should be logged in the staff Discord channel.</span></div>
+  <div class="note-item"><span class="note-dot">→</span><span>All scene announcements must be made via /broadcast before the scene begins.</span></div>
+  <div class="note-item"><span class="note-dot">→</span><span>Ban appeals go through tickets only — do not handle them in DMs.</span></div>
+  <div class="note-item"><span class="note-dot">→</span><span>When culling mobs for lag, log which player's area and how many were removed.</span></div>
+  <div class="note-item"><span class="note-dot">→</span><span>Plot info stays private — do not hint at future events even in staff chat.</span></div>
+</div>
+```
+
+  </div>
+  <footer>© 2026 Amplified SMP · Staff Portal · Confidential</footer>
+</div>
+
+<script>
+  const PASSWORD = "AmplifiedisChill!";
+  const SESSION_KEY = "amplified_staff_auth";
+
+  function tryLogin() {
+    const val = document.getElementById('pw-input').value;
+    if (val === PASSWORD) {
+      sessionStorage.setItem(SESSION_KEY, '1');
+      showStaff();
+    } else {
+      document.getElementById('login-error').classList.add('show');
+      document.getElementById('pw-input').value = '';
+      document.getElementById('pw-input').focus();
+    }
+  }
+
+  function showStaff() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('staff-content').style.display = 'block';
+  }
+
+  function logout() {
+    sessionStorage.removeItem(SESSION_KEY);
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('staff-content').style.display = 'none';
+    document.getElementById('pw-input').value = '';
+  }
+
+  // Auto-login if session exists
+  if (sessionStorage.getItem(SESSION_KEY)) showStaff();
+
+  // Starfield
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let W, H, stars = [];
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  window.addEventListener('resize', () => { resize(); initStars(); });
+  resize();
+  function rand(a,b){ return Math.random()*(b-a)+a; }
+  function createStar() {
+    const speed = rand(0.8,2.5), size = rand(0.5,1.5), trail = rand(4,12);
+    return { x:rand(0,W), y:rand(0,H), vx:Math.cos(rand(0,Math.PI*2))*speed, vy:rand(0.5,2), size, trail, alpha:rand(0.4,1), hue:rand(200,280) };
+  }
+  function initStars() { stars = Array.from({length:50}, createStar); }
+  initStars();
+  function tick() {
+    ctx.clearRect(0,0,W,H);
+    for(let s of stars){
+      s.x+=s.vx; s.y+=s.vy;
+      if(s.y>H+50||s.x>W+50||s.x<-50){ Object.assign(s,createStar()); s.y=-10; }
+      const g=ctx.createLinearGradient(s.x-s.vx*s.trail,s.y-s.vy*s.trail,s.x,s.y);
+      g.addColorStop(0,`hsla(${s.hue},80%,90%,0)`);
+      g.addColorStop(1,`hsla(${s.hue},80%,95%,${s.alpha})`);
+      ctx.save(); ctx.strokeStyle=g; ctx.lineWidth=s.size; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(s.x-s.vx*s.trail,s.y-s.vy*s.trail); ctx.lineTo(s.x,s.y); ctx.stroke();
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.size*1.2,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${s.hue},90%,98%,${s.alpha})`; ctx.fill(); ctx.restore();
+    }
+    requestAnimationFrame(tick);
+  }
+  tick();
+</script>
+
+</body>
+</html>
