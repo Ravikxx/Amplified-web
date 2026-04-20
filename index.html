@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+
+<html lang="en" style="background:#0a0d14;">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Amplified SMP</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+```
+/* Background set on every root element with !important AND as inline style on
+   <html> and <body> tags — this is the only reliable way to beat mobile Safari
+   on GitHub Pages, which sometimes ignores stylesheet backgrounds entirely */
+html {
+  background: #0a0d14 !important;
+  min-height: 100%;
+}
+
+body {
+  background: #0a0d14 !important;
+  color: #d4e4f0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* The starfield canvas sits fixed behind everything at z-index 0.
+   It only draws on the canvas itself — it doesn't affect the background
+   color of any HTML element, which is why it was never responsible for
+   the white-background bug. */
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Subtle dark gradient overlay on top of the canvas to give depth
+   and make text easier to read over the starfield */
+.bg-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 20%, rgba(0,80,120,0.12) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 80% 80%, rgba(80,20,140,0.1) 0%, transparent 65%);
+}
+
+/* Everything in .page sits above the canvas at z-index 2 */
+.page {
+  position: relative;
+  z-index: 2;
+  padding-top: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: calc(100vh - 56px);
+}
+
+/* NAVBAR — sits above canvas and page content */
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  background: rgba(10,13,20,0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid #0d1a24;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+}
+
+.brand-logo {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  object-fit: cover;
+  background: #111520;
+  border: 1px solid #0d2a3a;
+}
+
+.brand-name {
+  font-family: 'Oxanium', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #e8f4ff;
+  letter-spacing: 0.04em;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  list-style: none;
+}
+
+.navbar-links a {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4a6070;
+  text-decoration: none;
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.5rem;
+  transition: color 0.15s, background 0.15s;
+}
+
+.navbar-links a:hover {
+  color: #d4e4f0;
+  background: rgba(255,255,255,0.05);
+}
+
+.navbar-links a.active { color: #00c4ef; }
+
+/* HERO */
+.hero {
+  width: 100%;
+  max-width: 680px;
+  padding: 4rem 1.5rem 3rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.hero-logo {
+  width: 88px;
+  height: 88px;
+  border-radius: 20px;
+  object-fit: cover;
+  background: #111520;
+  border: 1px solid #0d2a3a;
+  box-shadow: 0 0 32px rgba(0,196,239,0.08), 0 0 64px rgba(0,0,0,0.6);
+  font-size: 0;
+  color: transparent;
+}
+
+.hero-tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  font-family: 'Oxanium', sans-serif;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #00c4ef;
+  background: rgba(0,196,239,0.06);
+  border: 1px solid rgba(0,196,239,0.15);
+  padding: 0.32rem 0.9rem;
+  border-radius: 99px;
+}
+
+.hero-title {
+  font-family: 'Oxanium', sans-serif;
+  font-size: clamp(2.4rem, 9vw, 4.8rem);
+  font-weight: 800;
+  line-height: 1.0;
+  letter-spacing: -0.01em;
+  background: linear-gradient(135deg, #00c4ef 0%, #6d4aff 50%, #b020d0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: 1rem;
+  color: #4a6070;
+  max-width: 400px;
+  line-height: 1.75;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* BUTTONS */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.65rem 1.4rem;
+  border-radius: 0.6rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+
+.btn-cyan {
+  background: #0a4a5a;
+  color: #7adeef;
+  border: 1px solid #0a6070;
+}
+.btn-cyan:hover {
+  background: #0b5a6e;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(0,100,130,0.4);
+}
+
+.btn-ghost {
+  background: rgba(255,255,255,0.04);
+  color: #4a6070;
+  border: 1px solid rgba(255,255,255,0.07);
+}
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.07);
+  color: #7a9aaa;
+  transform: translateY(-1px);
+}
+
+/* IP PILL */
+.ip-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: rgba(0,196,239,0.04);
+  border: 1px solid rgba(0,196,239,0.12);
+  border-radius: 0.6rem;
+  padding: 0.55rem 0.9rem;
+}
+
+.ip-label {
+  font-family: 'Oxanium', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #00c4ef;
+  background: rgba(0,196,239,0.08);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+}
+
+.ip-value {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #8ab8c8;
+}
+
+.ip-copy {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #2a4050;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: color 0.15s;
+}
+.ip-copy:hover { color: #00c4ef; }
+
+/* DIVIDER */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,196,239,0.15), transparent);
+}
+
+/* CONTENT */
+.content {
+  width: 100%;
+  max-width: 1000px;
+  padding: 3rem 1.5rem 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.section-eyebrow {
+  font-family: 'Oxanium', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #00c4ef;
+  margin-bottom: 0.35rem;
+}
+
+.section-title {
+  font-family: 'Oxanium', sans-serif;
+  font-size: clamp(1.3rem, 3vw, 1.85rem);
+  font-weight: 800;
+  color: #e8f4ff;
+  letter-spacing: -0.01em;
+  margin-bottom: 1.25rem;
+}
+
+/* CARDS — semi-transparent dark surface so the starfield shows through slightly */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: rgba(13,17,24,0.85);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 1rem;
+  padding: 1.4rem;
+  transition: border-color 0.2s, transform 0.2s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.card:hover {
+  border-color: rgba(0,196,239,0.2);
+  transform: translateY(-3px);
+}
+
+.card-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: rgba(0,196,239,0.06);
+  border: 1px solid rgba(0,196,239,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  margin-bottom: 0.9rem;
+}
+
+.card-title {
+  font-family: 'Oxanium', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #e8f4ff;
+  margin-bottom: 0.35rem;
+}
+
+.card-body {
+  font-size: 0.85rem;
+  color: #4a6070;
+  line-height: 1.6;
+}
+
+.card-body strong { color: #00c4ef; font-weight: 600; }
+.card-body a { color: #00c4ef; text-decoration: none; font-weight: 600; }
+.card-body a:hover { text-decoration: underline; }
+.card-body .muted { font-size: 0.78rem; color: #2a3a44; }
+
+/* FOOTER */
+footer {
+  width: 100%;
+  border-top: 1px solid rgba(0,196,239,0.07);
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 0.76rem;
+  color: #1e2d38;
+  letter-spacing: 0.06em;
+}
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  background: #0a4a5a;
+  color: #7adeef;
+  border: 1px solid #0a6070;
+  padding: 0.5rem 1.2rem;
+  border-radius: 99px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none;
+  z-index: 999;
+}
+.toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 500px) {
+  .cards { grid-template-columns: 1fr; }
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .ip-pill { flex-wrap: wrap; justify-content: center; }
+}
+```
+
+  </style>
+</head>
+<body style="background:#0a0d14;">
+
+<!-- Fixed canvas — draws the twinkling stars behind everything -->
+
+<canvas id="bg-canvas"></canvas>
+
+<div class="bg-overlay"></div>
+
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand">
+    <img src="logo.jpeg" alt="" class="brand-logo" onerror="this.style.display='none'"/>
+    <span class="brand-name">Amplified SMP</span>
+  </a>
+  <ul class="navbar-links">
+    <li><a href="index.html" class="active">Home</a></li>
+    <li><a href="rules.html">Rules</a></li>
+    <li><a href="staff.html">Staff</a></li>
+  </ul>
+</nav>
+
+<div class="page">
+
+  <div class="hero">
+    <img src="logo.jpeg" alt="Amplified SMP" class="hero-logo" onerror="this.style.display='none'"/>
+    <span class="hero-tag">&#9889; Java &amp; Bedrock &middot; 1.21</span>
+    <h1 class="hero-title">Amplified SMP</h1>
+    <p class="hero-sub">A survival server built on community and chaos. Build, explore, and make your mark.</p>
+
+```
+<div class="hero-actions">
+  <a href="https://discord.gg/KE9F625d3z" class="btn btn-cyan" target="_blank" rel="noopener">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.1 18.085.115 18.11.134 18.13a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+    </svg>
+    Join Discord
+  </a>
+  <a href="#how-to-join" class="btn btn-ghost">How to Join</a>
+</div>
+
+<div class="ip-pill">
+  <span class="ip-label">Java IP</span>
+  <span class="ip-value">play.amplifiedsmp.org</span>
+  <button class="ip-copy" onclick="copyIP('play.amplifiedsmp.org')" title="Copy IP" aria-label="Copy IP">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="9" y="9" width="13" height="13" rx="2"/>
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+    </svg>
+  </button>
+</div>
+```
+
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="content">
+
+```
+<div>
+  <p class="section-eyebrow">What we offer</p>
+  <h2 class="section-title">Built Different</h2>
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">&#9876;&#65039;</div>
+      <div class="card-title">Survival SMP</div>
+      <p class="card-body">Hardcore survival with a tight-knit community. Build, explore, and fight your way to the top.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#128345;</div>
+      <div class="card-title">Crossplay</div>
+      <p class="card-body">Java and Bedrock players on the same server. Connect from PC, mobile, or console.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#128737;&#65039;</div>
+      <div class="card-title">Anti-Grief</div>
+      <p class="card-body">CoreProtect logs every block. Griefers get rolled back, banned, and forgotten.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#9889;</div>
+      <div class="card-title">Low Latency</div>
+      <p class="card-body">Self-hosted on dedicated hardware with Aikar's JVM flags for silky smooth TPS.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#127917;</div>
+      <div class="card-title">Active Events</div>
+      <p class="card-body">Regular community events, giveaways, and server-wide challenges. Never a dull moment.</p>
+    </div>
+  </div>
+</div>
+
+<div id="how-to-join">
+  <p class="section-eyebrow">Get started</p>
+  <h2 class="section-title">How to Join</h2>
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">&#9749;</div>
+      <div class="card-title">Java Edition</div>
+      <p class="card-body">
+        Multiplayer &rarr; Add Server<br><br>
+        <strong>play.amplifiedsmp.org</strong>
+      </p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#128241;</div>
+      <div class="card-title">Bedrock Edition</div>
+      <p class="card-body">
+        Servers &rarr; Add Server<br><br>
+        <strong>play.amplifiedsmp.org</strong><br>
+        <span class="muted">Port: 19132</span>
+      </p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#128172;</div>
+      <div class="card-title">Join the Discord</div>
+      <p class="card-body">
+        Announcements, community chat, and support tickets.<br><br>
+        <a href="https://discord.gg/KE9F625d3z" target="_blank" rel="noopener">discord.gg/KE9F625d3z &rarr;</a>
+      </p>
+    </div>
+  </div>
+</div>
+```
+
+  </div>
+
+  <footer>
+    &copy; 2026 Amplified SMP &nbsp;&middot;&nbsp; amplifiedsmp.org &nbsp;&middot;&nbsp; Not affiliated with Mojang or Microsoft
+  </footer>
+
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite">IP Copied!</div>
+
+<script>
+  // STARFIELD — simple drifting stars drawn on a canvas element.
+  // This is entirely separate from the page background color, which is why
+  // the starfield itself was never causing the white-background bug.
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // Each star gets a random position, drift velocity, size, base opacity,
+  // and a phase offset so they twinkle out of sync with each other.
+  const stars = Array.from({ length: 130 }, () => ({
+    x:     Math.random() * W,
+    y:     Math.random() * H,
+    vx:    (Math.random() - 0.5) * 0.12,
+    vy:    Math.random() * 0.2 + 0.04,
+    r:     Math.random() * 1.0 + 0.2,
+    alpha: Math.random() * 0.5 + 0.15,
+    pulse: Math.random() * Math.PI * 2,
+  }));
+
+  function tick(t) {
+    ctx.clearRect(0, 0, W, H);
+
+    for (const s of stars) {
+      // Gentle twinkling: alpha oscillates slowly using a sine wave
+      const a = Math.max(0, s.alpha + Math.sin(t * 0.0007 + s.pulse) * 0.1);
+
+      // Tint stars slightly cyan to match the site's color palette
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(200,230,255,${a})`;
+      ctx.fill();
+
+      s.x += s.vx;
+      s.y += s.vy;
+
+      // Wrap stars around screen edges so there are always stars visible
+      if (s.y > H + 2) { s.y = -2; s.x = Math.random() * W; }
+      if (s.x > W + 2) { s.x = -2; }
+      if (s.x < -2)    { s.x = W + 2; }
+    }
+
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  // COPY IP — tries the modern clipboard API first, falls back to the
+  // old execCommand approach for HTTP contexts like some GitHub Pages setups.
+  function copyIP(ip) {
+    navigator.clipboard.writeText(ip).catch(() => {
+      const el = document.createElement('textarea');
+      el.value = ip;
+      el.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+    });
+    const t = document.getElementById('toast');
+    t.classList.add('visible');
+    setTimeout(() => t.classList.remove('visible'), 2000);
+  }
+</script>
+
+</body>
+</html>
